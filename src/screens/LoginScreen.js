@@ -4,39 +4,38 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import {useAuth} from '../context/AuthContext';
 
-const LoginScreen = ({navigation}) => {
+export default function LoginScreen({navigation}) {
+  const {login} = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {login, loading} = useAuth();
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const validateEmail = email => {
-    return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!email.includes('@')) newErrors.email = 'Invalid email address';
+    if (password.length < 6)
+      newErrors.password = 'Password must be at least 6 characters';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
+    if (!validateForm()) return;
 
-    if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long');
-      return;
-    }
-
-    const result = await login(email, password);
-    if (!result.success) {
-      Alert.alert('Error', result.error || 'Login failed');
+    try {
+      setLoading(true);
+      await login(email, password);
+      navigation.navigate('Home');
+    } catch (err) {
+      setErrors({general: err.message});
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,83 +44,85 @@ const LoginScreen = ({navigation}) => {
       <Text style={styles.title}>Login</Text>
 
       <TextInput
-        style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#888"
+        style={[styles.input, errors.email && styles.inputError]}
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
         autoCapitalize="none"
+        keyboardType="email-address"
       />
+      {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
       <TextInput
-        style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#888"
+        style={[styles.input, errors.password && styles.inputError]}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
+      {errors.password && (
+        <Text style={styles.errorText}>{errors.password}</Text>
+      )}
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleLogin}
-        disabled={loading}>
-        <Text style={styles.buttonText}>
-          {loading ? 'Logging in...' : 'Login'}
-        </Text>
-      </TouchableOpacity>
+      {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
 
-      <TouchableOpacity
-        style={styles.linkButton}
-        onPress={() => navigation.navigate('Signup')}>
-        <Text style={styles.linkText}>Don't have an account? Sign up</Text>
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+        <Text style={styles.link}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-  },
+  container: {flex: 1, justifyContent: 'center', padding: 20},
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 24,
     textAlign: 'center',
   },
   input: {
-    height: 50,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 6,
     fontSize: 16,
+    color: '#000',
+  },
+  inputError: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontSize: 14,
   },
   button: {
-    backgroundColor: '#007AFF',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
+    backgroundColor: '#000',
+    paddingVertical: 14,
+    borderRadius: 6,
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 12,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
     fontWeight: 'bold',
-  },
-  linkButton: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
     fontSize: 16,
+  },
+  link: {
+    color: '#007bff',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
-
-export default LoginScreen;

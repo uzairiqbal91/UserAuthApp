@@ -1,89 +1,70 @@
-import React, {createContext, useState, useContext} from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
+import {supabase} from '../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const login = async (email, password) => {
-    try {
-      setLoading(true);
+    console.log('Login started', email, password); // ✅ check if it's triggered
 
-      const userData = {
-        email,
-        name: 'Demo User',
-      };
+    const {user, error} = await supabase.auth.signIn({email, password});
 
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return {success: true};
-    } catch (error) {
-      return {success: false, error: error.message};
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error('Login error:', error.message);
+      throw error;
     }
+
+    console.log('User logged in:', user);
+    setUser(user);
+    await AsyncStorage.setItem('user', JSON.stringify(user));
   };
 
-  const signup = async (name, email, password) => {
-    try {
-      setLoading(true);
-
-      const userData = {
-        email,
-        name,
-      };
-
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return {success: true};
-    } catch (error) {
-      return {success: false, error: error.message};
-    } finally {
-      setLoading(false);
-    }
+  const signup = async (email, password, name) => {
+    const {user, error} = await supabase.auth.signUp(
+      {email, password},
+      {data: {full_name: name}},
+    );
+    if (error) throw error;
+    setUser(user);
+    await AsyncStorage.setItem('user', JSON.stringify(user));
   };
 
   const logout = async () => {
-    try {
-      await AsyncStorage.removeItem('user');
-      setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    await supabase.auth.signOut();
+    setUser(null);
+    await AsyncStorage.removeItem('user');
+  };
+
+  const loadUser = async () => {
+    const storedUser = await AsyncStorage.getItem('user');
+    if (storedUser) setUser(JSON.parse(storedUser));
+    setLoading(false);
   };
 
   const checkUser = async () => {
-    try {
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error('Check user error:', error);
+    const {
+      data: {user},
+      error,
+    } = await supabase.auth.getUser();
+    if (!error) {
+      setUser(user);
     }
   };
 
+  useEffect(() => {
+    loadUser();
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        signup,
-        logout,
-        checkUser,
-      }}>
+      value={{user, login, signup, logout, loading, checkUser}}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
