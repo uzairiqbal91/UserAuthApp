@@ -1,4 +1,118 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# React Native User Authentication App
+
+A React Native application that demonstrates user authentication functionality using React Context API and AsyncStorage for state persistence.
+
+## Features
+
+- User authentication (Login/Signup)
+- Form validation
+- Persistent authentication state
+- Clean and modern UI
+- Navigation between screens
+- Error handling
+
+## Prerequisites
+
+- Node.js
+- npm or yarn
+- React Native development environment set up
+- iOS Simulator (for iOS) or Android Emulator (for Android)
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd UserAuthApp
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. For iOS, install pods:
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+## Running the App
+
+### iOS
+
+```bash
+npm run ios
+# or
+yarn ios
+```
+
+### Android
+
+```bash
+npm run android
+# or
+yarn android
+```
+
+## Project Structure
+
+```
+src/
+  ├── context/
+  │   └── AuthContext.js    # Authentication context and logic
+  ├── screens/
+  │   ├── LoginScreen.js    # Login screen component
+  │   ├── SignupScreen.js   # Signup screen component
+  │   └── HomeScreen.js     # Home screen component
+  └── App.js                # Main app component with navigation
+```
+
+## Features Implemented
+
+1. Authentication Context
+
+   - Global state management using Context API
+   - Login, Signup, and Logout functionality
+   - Persistent authentication using AsyncStorage
+
+2. Screens
+
+   - Login Screen with email/password validation
+   - Signup Screen with name, email, and password validation
+   - Home Screen displaying user information
+
+3. Form Validation
+
+   - Email format validation
+   - Password length validation
+   - Required field validation
+
+4. Navigation
+
+   - Stack navigation between screens
+   - Protected routes based on authentication state
+
+5. UI/UX
+   - Clean and modern design
+   - Loading states
+   - Error messages
+   - Intuitive navigation
+
+## Notes
+
+- This is a demo application and uses AsyncStorage for demonstration purposes
+- In a production environment, you would want to:
+  - Implement proper backend authentication
+  - Add secure password hashing
+  - Implement proper token management
+  - Add additional security measures
 
 # Getting Started
 
@@ -66,7 +180,7 @@ This is one way to run your app — you can also build it directly from Android 
 
 Now that you have successfully run the app, let's make changes!
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
 
 When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
 
