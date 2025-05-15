@@ -1,16 +1,9 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
-import {useAuth} from '../context/AuthContext';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
-export default function LoginScreen({navigation}) {
-  const {login} = useAuth();
+export default function LoginScreen({ navigation }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -30,10 +23,10 @@ export default function LoginScreen({navigation}) {
 
     try {
       setLoading(true);
-      await login(email, password);
-      navigation.navigate('Home');
+      await login(email, password); // Login the user
+      navigation.navigate('Home');  // Navigate to Home screen if login is successful
     } catch (err) {
-      setErrors({general: err.message});
+      setErrors({ general: err.message });
     } finally {
       setLoading(false);
     }
@@ -43,86 +36,22 @@ export default function LoginScreen({navigation}) {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
 
-      <TextInput
-        placeholder="Email"
-        placeholderTextColor="#888"
-        style={[styles.input, errors.email && styles.inputError]}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} />
       {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor="#888"
-        style={[styles.input, errors.password && styles.inputError]}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {errors.password && (
-        <Text style={styles.errorText}>{errors.password}</Text>
-      )}
+      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+      {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
       {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
 
-      {loading ? (
-        <ActivityIndicator />
-      ) : (
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-      )}
-
-      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-        <Text style={styles.link}>Don't have an account? Sign up</Text>
-      </TouchableOpacity>
+      {loading ? <ActivityIndicator /> : <TouchableOpacity onPress={handleLogin}><Text>Login</Text></TouchableOpacity>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', padding: 20},
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 6,
-    fontSize: 16,
-    color: '#000',
-  },
-  inputError: {
-    borderColor: 'red',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: '#000',
-    paddingVertical: 14,
-    borderRadius: 6,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  link: {
-    color: '#007bff',
-    textAlign: 'center',
-    marginTop: 20,
-  },
+  container: { flex: 1, justifyContent: 'center', padding: 20 },
+  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 12, marginBottom: 6, fontSize: 16, color: '#000' },
+  errorText: { color: 'red', marginBottom: 10, fontSize: 14 },
 });

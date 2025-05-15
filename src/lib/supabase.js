@@ -6,9 +6,20 @@ if (!globalThis.fetch) {
   require('whatwg-fetch');
 }
 
-const supabaseUrl = 'https://oooahvuwximdvssmpxbd.supabase.co';
+const supabaseUrl = "https://yigmuwcmrkbeiodotaio.supabase.co";
 const supabaseKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vb2FodnV3eGltZHZzc21weGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNTAxMzMsImV4cCI6MjA2MjcyNjEzM30._Oigq1tSU6nyBQ_mIheNzad_H3gE36eIOBYopegDhoc';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpZ211d2NtcmtiZWlvZG90YWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMjQ5MTksImV4cCI6MjA2MjkwMDkxOX0.5M3XfovOEP2skSy8i7LYDk-kdA6CS97ba5lCAU3X7t4";
+
+console.log(
+  'Supabase URL:',
+  supabaseUrl,
+); // ✅ check if it's triggered
+console.log(
+  'Supabase Key:',
+  supabaseKey,
+); // ✅ check if it's triggered
+
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     storage: AsyncStorage,

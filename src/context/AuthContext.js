@@ -9,28 +9,50 @@ export const AuthProvider = ({children}) => {
   const [loading, setLoading] = useState(true);
 
   const login = async (email, password) => {
-    console.log('Login started', email, password); // ✅ check if it's triggered
-
-    const {user, error} = await supabase.auth.signIn({email, password});
-
-    if (error) {
-      console.error('Login error:', error.message);
-      throw error;
+    try {
+      const { user, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+  
+      if (error) {
+        throw new Error(error.message);  // Throw error if there's any
+      }
+  
+      console.log('User logged in:', user);  // You can also log user data here
+      return user;  // Return the user object if login is successful
+    } catch (err) {
+      console.error('Login failed:', err.message);
+      throw err;  // Re-throw error so it can be caught in the LoginScreen
     }
-
-    console.log('User logged in:', user);
-    setUser(user);
-    await AsyncStorage.setItem('user', JSON.stringify(user));
   };
 
   const signup = async (email, password, name) => {
-    const {user, error} = await supabase.auth.signUp(
-      {email, password},
-      {data: {full_name: name}},
-    );
-    if (error) throw error;
-    setUser(user);
-    await AsyncStorage.setItem('user', JSON.stringify(user));
+    try {
+      // Step 1: Sign up the user via Supabase auth
+      const { user, error: signupError } = await supabase.auth.signUp(
+        { email, password },
+        { data: { full_name: name } }
+      );
+  
+      if (signupError) throw signupError;
+  
+      // Step 2: Save the user data into the `profiles` table
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .upsert([
+          {
+            email: user.email,
+            full_name: user.user_metadata.full_name,
+          }
+        ]);
+  
+      if (insertError) throw insertError;
+  
+      console.log('User signed up and profile created');
+    } catch (err) {
+      console.error('Sign up failed:', err.message);
+    }
   };
 
   const logout = async () => {
