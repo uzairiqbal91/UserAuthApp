@@ -1,3 +1,4 @@
+import './src/lib/firebase'; 
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -5,6 +6,8 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
+
+import auth from '@react-native-firebase/auth';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +34,14 @@ const Navigation = () => {
 };
 
 const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check if the user is logged in
+    const subscriber = auth().onAuthStateChanged(setUser);
+    return subscriber; // Unsubscribe on unmount
+  }, []);
+
   return (
     <AuthProvider>
       <NavigationContainer>
