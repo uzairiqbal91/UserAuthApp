@@ -1,22 +1,19 @@
-import './src/lib/firebase'; 
-import React, { useEffect, useState } from 'react';
+import './src/lib/firebase';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
 
-import auth from '@react-native-firebase/auth';
-
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const { user, checkUser } = useAuth(); // Make sure `checkUser` is called to validate session
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    checkUser(); // Check user session when the app loads
-  }, [checkUser]);
+  if (loading) return null; // Optionally render a loading spinner here
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -24,7 +21,6 @@ const Navigation = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
       ) : (
         <>
-        <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
         </>
@@ -34,14 +30,6 @@ const Navigation = () => {
 };
 
 const App = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Check if the user is logged in
-    const subscriber = auth().onAuthStateChanged(setUser);
-    return subscriber; // Unsubscribe on unmount
-  }, []);
-
   return (
     <AuthProvider>
       <NavigationContainer>

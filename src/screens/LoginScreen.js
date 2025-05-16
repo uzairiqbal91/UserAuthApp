@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
@@ -12,8 +22,7 @@ export default function LoginScreen({ navigation }) {
   const validateForm = () => {
     const newErrors = {};
     if (!email.includes('@')) newErrors.email = 'Invalid email address';
-    if (password.length < 6)
-      newErrors.password = 'Password must be at least 6 characters';
+    if (password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -23,8 +32,8 @@ export default function LoginScreen({ navigation }) {
 
     try {
       setLoading(true);
-      await login(email, password); // Login the user
-      navigation.navigate('Home');  // Navigate to Home screen if login is successful
+      await login(email, password);
+      navigation.navigate('Home');
     } catch (err) {
       setErrors({ general: err.message });
     } finally {
@@ -33,25 +42,100 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={styles.title}>Login</Text>
 
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} />
-      {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#999"
+          style={[styles.input, errors.email && styles.inputError]}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
-      {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#999"
+          style={[styles.input, errors.password && styles.inputError]}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+        {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
 
-      {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
+        {loading ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : (
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+        )}
 
-      {loading ? <ActivityIndicator /> : <TouchableOpacity onPress={handleLogin}><Text>Login</Text></TouchableOpacity>}
-    </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <Text style={styles.link}>Don't have an account? Sign up</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 12, marginBottom: 6, fontSize: 16, color: '#000' },
-  errorText: { color: 'red', marginBottom: 10, fontSize: 14 },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '600',
+    marginBottom: 30,
+    textAlign: 'center',
+    color: '#111',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fafafa',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 10,
+    fontSize: 16,
+    color: '#000',
+  },
+  inputError: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontSize: 14,
+  },
+  button: {
+    backgroundColor: '#000',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  link: {
+    color: '#007bff',
+    textAlign: 'center',
+    marginTop: 24,
+    fontSize: 15,
+  },
 });

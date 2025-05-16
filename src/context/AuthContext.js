@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import '@react-native-firebase/app';
-import auth from '@react-native-firebase/auth'; // Import Firebase Auth
-
-import firestore from '@react-native-firebase/firestore'; // Import Firestore
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
@@ -11,87 +9,83 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Login function
-  const login = async (email, password) => {
-    try {
-      const userCredential = await auth().signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-      console.log('User logged in:', user);
-
-      // Store user in AsyncStorage
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-
-      // Fetch user additional data from Firestore
-      const userData = await firestore().collection('users').doc(user.uid).get();
-      setUser({ ...user, ...userData.data() }); // Merge user data with Firestore info
-
-      return user;
-    } catch (err) {
-      console.error('Login failed:', err.message);
-      throw err;  // Throw the error so it can be caught in the LoginScreen
-    }
-  };
-
-  // Signup function
+  // 🔐 Signup: create user + Firestore doc
   const signup = async (email, password, name) => {
     try {
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-      console.log('User signed up:', user);
+      const { user: firebaseUser } = await auth().createUserWithEmailAndPassword(email, password);
 
-      // Save additional user data in Firestore
-      await firestore().collection('users').doc(user.uid).set({
-        name: name,
-        email: email,
+      await firestore().collection('users').doc(firebaseUser.uid).set({
+        name,
+        email,
       });
 
-      // Save user in AsyncStorage
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      const fullUser = { ...firebaseUser.toJSON(), name };
+      await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+      setUser(fullUser);
 
-      return user;
+      return fullUser;
     } catch (err) {
       console.error('Sign up failed:', err.message);
-      throw err;  // Handle sign-up error (e.g., email already in use)
+      throw err;
     }
   };
 
-  // Logout function
+  // 🔐 Login: fetch user profile from Firestore
+  const login = async (email, password) => {
+    try {
+      const { user: firebaseUser } = await auth().signInWithEmailAndPassword(email, password);
+      const profile = await firestore().collection('users').doc(firebaseUser.uid).get();
+
+      const fullUser = { ...firebaseUser.toJSON(), ...profile.data() };
+      await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+      setUser(fullUser);
+
+      return fullUser;
+    } catch (err) {
+      console.error('Login failed:', err.message);
+      throw err;
+    }
+  };
+
+  // 🔓 Logout: sign out and clear storage
   const logout = async () => {
     try {
       await auth().signOut();
-      setUser(null);
       await AsyncStorage.removeItem('user');
+      setUser(null);
     } catch (err) {
       console.error('Logout failed:', err.message);
     }
   };
 
-  // Load user from AsyncStorage when the app starts
+  // 📥 Load user from local storage
   const loadUser = async () => {
     try {
       const storedUser = await AsyncStorage.getItem('user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser)); // Set user if found in AsyncStorage
+        setUser(JSON.parse(storedUser));
       }
-      setLoading(false);
     } catch (err) {
-      console.error('Failed to load user:', err.message);
+      console.error('Load user failed:', err.message);
+    } finally {
       setLoading(false);
     }
   };
 
-  // Check user session when app loads
+  // 🔁 Check Firebase session + Firestore
   const checkUser = async () => {
     const currentUser = auth().currentUser;
     if (currentUser) {
-      setUser(currentUser);  // If logged in, set user in state
+      const profile = await firestore().collection('users').doc(currentUser.uid).get();
+      const fullUser = { ...currentUser.toJSON(), ...profile.data() };
+      setUser(fullUser);
     } else {
       setUser(null);
     }
   };
 
   useEffect(() => {
-    loadUser();  // Load user when the app starts
+    loadUser();
   }, []);
 
   return (
