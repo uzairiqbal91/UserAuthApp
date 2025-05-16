@@ -9,45 +9,44 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔐 Signup: create user + Firestore doc
   const signup = async (email, password, name) => {
     try {
       const { user: firebaseUser } = await auth().createUserWithEmailAndPassword(email, password);
 
-      await firestore().collection('users').doc(firebaseUser.uid).set({
-        name,
-        email,
-      });
+      await firestore().collection('users').doc(firebaseUser.uid).set({ name, email });
 
-      const fullUser = { ...firebaseUser.toJSON(), name };
+      const fullUser = { ...firebaseUser.toJSON(), name, email };
       await AsyncStorage.setItem('user', JSON.stringify(fullUser));
       setUser(fullUser);
 
       return fullUser;
     } catch (err) {
-      console.error('Sign up failed:', err.message);
+      console.error('Signup Error:', err.message);
       throw err;
     }
   };
 
-  // 🔐 Login: fetch user profile from Firestore
   const login = async (email, password) => {
     try {
       const { user: firebaseUser } = await auth().signInWithEmailAndPassword(email, password);
-      const profile = await firestore().collection('users').doc(firebaseUser.uid).get();
 
-      const fullUser = { ...firebaseUser.toJSON(), ...profile.data() };
+      const doc = await firestore().collection('users').doc(firebaseUser.uid).get();
+      if (!doc.exists) {
+        throw new Error('User profile missing in Firestore');
+      }
+
+      const profile = doc.data();
+      const fullUser = { ...firebaseUser.toJSON(), ...profile };
       await AsyncStorage.setItem('user', JSON.stringify(fullUser));
       setUser(fullUser);
 
       return fullUser;
     } catch (err) {
-      console.error('Login failed:', err.message);
+      console.error('Login Error:', err.message);
       throw err;
     }
   };
 
-  // 🔓 Logout: sign out and clear storage
   const logout = async () => {
     try {
       await auth().signOut();
@@ -58,7 +57,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📥 Load user from local storage
   const loadUser = async () => {
     try {
       const storedUser = await AsyncStorage.getItem('user');
@@ -72,7 +70,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🔁 Check Firebase session + Firestore
   const checkUser = async () => {
     const currentUser = auth().currentUser;
     if (currentUser) {

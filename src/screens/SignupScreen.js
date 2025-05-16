@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather'; // 👈 Feather has eye/eye-off
+
 import { useAuth } from '../context/AuthContext';
 
 export default function SignupScreen({ navigation }) {
@@ -17,6 +19,7 @@ export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -24,8 +27,7 @@ export default function SignupScreen({ navigation }) {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Name is required';
     if (!email.includes('@')) newErrors.email = 'Invalid email';
-    if (password.length < 6)
-      newErrors.password = 'Password must be at least 6 characters';
+    if (password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -36,7 +38,6 @@ export default function SignupScreen({ navigation }) {
     try {
       setLoading(true);
       await signup(email, password, name);
-      navigation.navigate('Home');
     } catch (err) {
       setErrors({ general: err.message });
     } finally {
@@ -50,7 +51,7 @@ export default function SignupScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.title}>Sign Up</Text>
 
         <TextInput
           placeholder="Full Name"
@@ -62,7 +63,7 @@ export default function SignupScreen({ navigation }) {
         {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
         <TextInput
-          placeholder="Email Address"
+          placeholder="Email"
           placeholderTextColor="#999"
           style={[styles.input, errors.email && styles.inputError]}
           value={email}
@@ -72,14 +73,26 @@ export default function SignupScreen({ navigation }) {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#999"
-          style={[styles.input, errors.password && styles.inputError]}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#999"
+            style={[styles.input, styles.passwordInput, errors.password && styles.inputError]}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.iconContainer}
+          >
+            <Icon
+              name={showPassword ? 'eye' : 'eye-off'}
+              size={22}
+              color="#000"
+            />
+          </TouchableOpacity>
+        </View>
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
         {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
 
@@ -123,6 +136,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     color: '#000',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingRight: 40, // space for icon
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 14,
+    padding: 8,
   },
   inputError: {
     borderColor: 'red',
