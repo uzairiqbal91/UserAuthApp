@@ -52,7 +52,12 @@ Create a React Native app with **Login and Signup** functionality using **React 
 
 ## 🎥 Demo Video
 
+
 [▶️ Watch Demo](https://github.com/user-attachments/assets/7d257d8d-4c19-433f-a695-0a4498611a84)
+
+https://github.com/user-attachments/assets/03445028-8b9e-42a4-9ce4-1c47a31cdb3d
+
+
 
 
 ---
