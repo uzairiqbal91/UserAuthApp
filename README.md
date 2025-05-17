@@ -1,8 +1,8 @@
 # React Native Authentication App 📱
 
-## 📌 Assignment Objective
+## 📌 Objective
 
-Create a React Native app with **Login and Signup** functionality using **React Context API** to manage the authentication state. This assignment will test your understanding of:
+Create a React Native app with **Login and Signup** functionality using **React Context API** to manage the authentication state.
 
 - 🔐 Authentication flows
 - 🧠 State management using Context API
@@ -40,21 +40,28 @@ Create a React Native app with **Login and Signup** functionality using **React 
 
 ## 📸 Screenshots
 
-### 🔐 Signup Screen
-![Signup Screen](./assets/screenshots/Screenshot%202025-05-18%20at%203.50.37%20AM.png)
+### 📄 User Authentication 
 
-### 📄 Firestore User Document
-![Firestore Data](./assets/screenshots/Screenshot%202025-05-18%20at%203.51.23%20AM.png)
+<img width="1148" alt="Screenshot 2025-05-18 at 4 03 16 AM" src="https://github.com/user-attachments/assets/080327cf-2131-4ae9-b119-12166e78c3ed" />
+
+### 📄 Firestore Users 
+
+<img width="1152" alt="Screenshot 2025-05-18 at 4 03 39 AM" src="https://github.com/user-attachments/assets/61d29299-846f-4573-944b-824ca53870e6" />
 
 ---
 
 ## 🎥 Demo Video
 
-[▶️ Watch Demo](./assets/demo/Screen%20Recording%202025-05-18%20at%203.49.18%20AM.mov)
+[▶️ Watch Demo](https://github.com/user-attachments/assets/7d257d8d-4c19-433f-a695-0a4498611a84)
+
 
 ---
 
 ## 🚀 Getting Started
+
+
+
+
 
 ### 1. Clone the repository
 
@@ -105,5 +112,5 @@ npx react-native run-android
 ## 🙌 Author
 
 **Uzair Iqbal**  
-React Native Developer  
+Mobile Application Developer 
 [GitHub Profile](https://github.com/uzairiqbal91)
