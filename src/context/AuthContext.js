@@ -32,7 +32,13 @@ export const AuthProvider = ({ children }) => {
 
       const doc = await firestore().collection('users').doc(firebaseUser.uid).get();
       if (!doc.exists) {
-        throw new Error('User profile missing in Firestore');
+        // Log for dev
+        console.warn(`No Firestore profile found for UID: ${firebaseUser.uid}`);
+  
+        // Show proper message to user
+        throw new Error(
+          'Your account was created successfully, but your profile data is missing.\nPlease contact support or try signing up again.'
+        );
       }
 
       const profile = doc.data();

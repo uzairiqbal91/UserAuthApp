@@ -86,11 +86,11 @@ export default function SignupScreen({ navigation }) {
             onPress={() => setShowPassword(!showPassword)}
             style={styles.iconContainer}
           >
-            <Icon
-              name={showPassword ? 'eye' : 'eye-off'}
-              size={22}
-              color="#000"
-            />
+            {/* <Icon
+              name={showPassword ? "eye" : 'eye-off'}
+              size={20}
+              color="#888"
+            /> */}
           </TouchableOpacity>
         </View>
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}

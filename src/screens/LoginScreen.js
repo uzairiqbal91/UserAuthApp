@@ -33,7 +33,7 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       await login(email, password);
-      navigation.navigate('Home');
+      
     } catch (err) {
       setErrors({ general: err.message });
     } finally {
